@@ -10,7 +10,7 @@
     {
       "name": "code-design",
       "source": "./plugins/code-design",
-      "description": "How we write and structure TypeScript and React code: readable code, Single Responsibility, no prop drilling, and Expo platform variants."
+      "description": "How we write and structure TypeScript, React and Next.js code: readable code, Single Responsibility, no prop drilling, streaming data in Next.js, and Expo platform variants."
     }
   ]
 }

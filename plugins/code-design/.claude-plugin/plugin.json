@@ -1,7 +1,7 @@
 {
   "name": "code-design",
-  "version": "1.0.0",
-  "description": "How we write and structure TypeScript and React code: readable code, Single Responsibility, no prop drilling, and Expo platform variants.",
+  "version": "1.1.0",
+  "description": "How we write and structure TypeScript, React and Next.js code: readable code, Single Responsibility, no prop drilling, streaming data in Next.js, and Expo platform variants.",
   "author": {
     "name": "Beyond Web Solutions"
   }

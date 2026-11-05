@@ -56,22 +56,15 @@ down. If a page component ends up with more than three or four props, a
 section is missing.
 
 ```tsx
-// app/search/page.tsx (Next.js) — the query lives in the URL
-interface Props {
-  searchParams: Promise<{ q?: string }>;
-}
-
-export default async function SearchPage({ searchParams }: Props) {
-  const { q } = await searchParams;
+// app/search/page.tsx (Next.js) — synchronous; the section reads ?q= itself
+export default function SearchPage({ searchParams }: PageProps<"/search">) {
   return (
     <main>
       <SearchBox />
-      {q ? <PlaceResults query={q} /> : (
-        <>
-          <FeaturedLocations />
-          <NearbyLocations />
-        </>
-      )}
+
+      <Suspense fallback={<SearchResultsSkeleton />}>
+        <SearchResults searchParams={searchParams} />
+      </Suspense>
     </main>
   );
 }
@@ -138,7 +131,9 @@ export function LocationResultRow({ location, distanceMeters, onPress }: Props) 
   bits become small client components (`"use client"`) at the leaf or section
   level, never the whole page. Wrap slow sections in `<Suspense>` at the page so
   each streams on its own. Mutations go through a server action colocated with
-  the section, not a callback passed from the page.
+  the section, not a callback passed from the page. Pages never await data,
+  params or the session; see the `nextjs-data-streaming` skill for the full
+  rules (Suspense, skeletons, passing params, Data Access Layer).
 - **Client-only React / React Native**: sections use data hooks (React Query,
   SWR, a store, or a plain `useEffect` hook) as shown above.
 - **Expo / React Native platform files** (`.ios.tsx`, `.android.tsx`): see the

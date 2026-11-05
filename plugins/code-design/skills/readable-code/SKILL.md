@@ -138,7 +138,8 @@ export function OrderRow({ orderId, onSelect }: Props) {
 }
 ```
 
-Not a `type` alias, not `OrderRowProps`. When another file needs the props
+Not a `type` alias, not `OrderRowProps`. One exception: Next.js pages and
+layouts use Next's route-checked `PageProps<"/route">` / `LayoutProps<"/route">`. When another file needs the props
 type, export it (`export interface Props`) and import it with an alias where a
 name clash would occur (`import type { Props as OrderRowProps } from "./order-row"`).
 

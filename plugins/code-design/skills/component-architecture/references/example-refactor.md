@@ -54,23 +54,36 @@ Problems, in the skill's terms:
 ## After: route and page compose, sections own their data
 
 ```tsx
-// app/search/page.tsx — one piece of page-level state, in the URL
-interface Props {
-  searchParams: Promise<{ q?: string }>;
-}
-
-export default async function SearchPage({ searchParams }: Props) {
-  const { q } = await searchParams;
+// app/search/page.tsx — synchronous, places sections, passes the promise down
+export default function SearchPage({ searchParams }: PageProps<"/search">) {
   return (
     <main>
       <SearchBox />                     {/* client leaf: writes ?q= */}
-      {q ? <PlaceResults query={q} /> : (
-        <>
-          <FeaturedLocations />
-          <NearbyLocations />
-        </>
-      )}
+
+      <Suspense fallback={<SearchResultsSkeleton />}>
+        <SearchResults searchParams={searchParams} />
+      </Suspense>
     </main>
+  );
+}
+
+// components/search/search-results.tsx — reads ?q= inside its boundary
+interface Props {
+  searchParams: PageProps<"/search">["searchParams"];
+}
+
+export async function SearchResults({ searchParams }: Props) {
+  const { q } = searchQuerySchema.parse(await searchParams);
+
+  if (q) {
+    return <PlaceResults query={q} />;
+  }
+
+  return (
+    <>
+      <FeaturedLocations />
+      <NearbyLocations />
+    </>
   );
 }
 ```
@@ -201,8 +214,10 @@ row is reused in the search list and in the map's side panel.
 ## Resulting layout
 
 ```
-app/search/page.tsx                  page: reads ?q=, places sections
+app/search/page.tsx                  page: synchronous, places sections
 components/search/
+  search-results.tsx                 section: awaits ?q=, picks results or home sections
+  search-results-skeleton.tsx        its skeleton
   search-box.tsx                     client leaf, writes ?q=
   featured-locations.tsx             server section, no props
   featured-locations-data.ts         colocated loader

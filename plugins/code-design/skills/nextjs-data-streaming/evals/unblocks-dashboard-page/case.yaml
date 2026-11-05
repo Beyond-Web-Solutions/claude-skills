@@ -1,0 +1,11 @@
+schema_version: "1.1"
+name: unblocks-dashboard-page
+expected_outcome: |
+  The page is a synchronous function (not async, no await) typed with 
+  PageProps. requireSession and a permission check move into the DAL query 
+  functions (getStats, getRecentOrders) in a data/queries file with 
+  server-only and cache(). Stats and orders are separate components, each 
+  awaiting its own query in its own Suspense boundary; static card headers 
+  stay outside the boundary. Each async component has its own skeleton file 
+  with the same shape. loading.tsx and the shared page-skeletons file are 
+  removed. One component per file, interface Props for non-page components.

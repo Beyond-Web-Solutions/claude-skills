@@ -1,0 +1,11 @@
+schema_version: "1.1"
+name: passes-search-params-down
+expected_outcome: |
+  The page is synchronous and passes the searchParams promise to the table 
+  component, which awaits it inside its own Suspense boundary and parses it 
+  with a zod schema in schemas/ (default all, unknown values rejected or 
+  defaulted). The filter is a client leaf using useSearchParams/router to 
+  update the URL. The heading and filter render outside Suspense. The 
+  outstanding total is a separate component with its own boundary and 
+  skeleton. Queries check the session in the DAL. Each Suspense has a 
+  matching skeleton in its own file; no loading.tsx.
