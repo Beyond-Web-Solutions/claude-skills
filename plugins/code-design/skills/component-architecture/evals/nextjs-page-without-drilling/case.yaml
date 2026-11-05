@@ -1,0 +1,12 @@
+schema_version: "1.1"
+name: nextjs-page-without-drilling
+expected_outcome: |
+  The page is a server component that only places sections, with no or one
+  prop each. Sections that show data (invoices, team) load it themselves via a
+  colocated data function, not via props from the page. "use client" is pushed
+  down to the interactive leaves or sections only. Paying an invoice and
+  inviting a member go through server actions or hooks colocated with their
+  section, not callbacks drilled from the page. Rows are pure. One component
+  per file, named by feature and role. No Expo or .ios/.android files.
+  Props are declared as `interface Props`, and every component (including
+  skeletons and rows) has its own file.

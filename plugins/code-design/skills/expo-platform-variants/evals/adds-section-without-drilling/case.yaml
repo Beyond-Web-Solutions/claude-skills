@@ -1,0 +1,12 @@
+schema_version: "1.1"
+name: adds-section-without-drilling
+expected_outcome: |
+  The new section is a self-contained component (default, .ios.tsx and
+  .android.tsx) with no props: it loads recommendations through its own data
+  hook shared by both platform files and opens the product page through a
+  hook, not through an onOpenProduct prop from the route. The platform files
+  import only types from the base file. The answer points out that the
+  existing props (onOpenProduct, recentActivity) are prop drilling and suggests
+  moving them into sections too, without being asked to rewrite everything.
+  Props are declared as `interface Props`, and every component (including
+  skeletons and rows) has its own file.

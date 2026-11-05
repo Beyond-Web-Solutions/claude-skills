@@ -1,0 +1,10 @@
+schema_version: "1.1"
+name: reuses-existing-formatter
+expected_outcome: |
+  invoice-row.tsx uses interface Props, is pure (values and onOpen in, no 
+  data fetching) and imports formatDate from utils/date.ts instead of 
+  writing its own. The euro formatting goes into a utils file (e.g. 
+  utils/currency.ts), not into the component file. The list is a separate 
+  file that gets the invoices for the customer itself (a data hook or 
+  loader) and passes no props through to rows that rows do not use. One 
+  component per file.

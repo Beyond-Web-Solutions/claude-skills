@@ -1,0 +1,10 @@
+schema_version: "1.1"
+name: cleans-up-dense-component
+expected_outcome: |
+  The component file contains only interface Props and one component. The 
+  skeleton has its own file. formatDutchDate moves to a shared utils file 
+  (e.g. utils/date.ts) and STATUS_COLORS to its own file. The filter/sort 
+  moves into a named useMemo (or helper functions in utils called from it) 
+  before the return. The nested ternary becomes a function with early 
+  returns or if statements. Every if has braces and steps are separated by 
+  blank lines. The answer does not force null over undefined.

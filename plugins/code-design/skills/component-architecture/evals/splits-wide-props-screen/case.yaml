@@ -1,0 +1,12 @@
+schema_version: "1.1"
+name: splits-wide-props-screen
+expected_outcome: |
+  The route renders one screen with at most one or two props. The screen only
+  places section components (orders, slot picker, cart summary). Each section
+  gets its own data through a colocated hook and triggers behaviour through a
+  shared action hook instead of callbacks passed down from the route. Rows and
+  cards are pure (values + onPress). One component per file, named by feature
+  and role. The answer names the principle (Single Responsibility / container
+  vs presentational / prop drilling) rather than atomic design.
+  Props are declared as `interface Props`, and every component (including
+  skeletons and rows) has its own file.

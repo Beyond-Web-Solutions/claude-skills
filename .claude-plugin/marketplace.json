@@ -1,0 +1,16 @@
+{
+  "name": "beyond-web-solutions",
+  "owner": {
+    "name": "Beyond Web Solutions"
+  },
+  "metadata": {
+    "description": "Claude Code skills used at Beyond Web Solutions."
+  },
+  "plugins": [
+    {
+      "name": "code-design",
+      "source": "./plugins/code-design",
+      "description": "How we write and structure TypeScript and React code: readable code, Single Responsibility, no prop drilling, and Expo platform variants."
+    }
+  ]
+}
