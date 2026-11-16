@@ -1,0 +1,10 @@
+schema_version: "1.1"
+name: keeps-auth-out-of-proxy
+expected_outcome: |
+  proxy.ts keeps only the routing it had (the next-intl middleware); no
+  session cookie check or sign-in redirect is added there. The settings
+  query (getProfile) in a server-only data/queries file starts with
+  await requireSession(), wrapped in cache(), and requireSession redirects
+  to the sign-in page when there is no session. The page stays synchronous
+  and does not check the session. The answer explains why auth does not
+  belong in the proxy, referring to the Data Access Layer approach.

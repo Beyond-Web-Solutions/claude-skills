@@ -1,6 +1,6 @@
 ---
 name: nextjs-data-streaming
-description: How to load data in Next.js App Router (15/16, Cache Components) - fetch in the server component that renders the data (the lowest level), wrap exactly that part in <Suspense> with a matching skeleton component, keep pages synchronous, and pass params / searchParams / cookies down as promises instead of awaiting them at the top. Use this whenever you write or change a Next.js page, layout or server component that loads data, reads params or searchParams, checks the session, adds a loading state, skeleton, loading.tsx or Suspense boundary, or when a page is slow, blocks on one query, shows a full-page spinner, or the build reports a blocking route / uncached data outside Suspense.
+description: How to load data in Next.js App Router (15/16, Cache Components) - fetch in the server component that renders the data (the lowest level), wrap exactly that part in <Suspense> with a matching skeleton component, keep pages synchronous, and pass params / searchParams / cookies down as promises instead of awaiting them at the top. Use this whenever you write or change a Next.js page, layout or server component that loads data, reads params or searchParams, checks the session or adds auth to proxy.ts / middleware, adds a loading state, skeleton, loading.tsx or Suspense boundary, or when a page is slow, blocks on one query, shows a full-page spinner, or the build reports a blocking route / uncached data outside Suspense.
 ---
 
 # Next.js data streaming
@@ -150,11 +150,16 @@ export async function OrderTable({ searchParams }: Props) {
 
 ## 6. Data Access Layer: auth lives in the query
 
-All data access goes through a Data Access Layer (DAL): the query and
-mutation functions in `features/<feature>/data/`. **Every DAL function checks
-the session and the permission itself**, as its first step, before it touches
-the database. Pages, layouts and components never call `requireSession()` or a
-permission check.
+We use the **Data Access Layer** approach from the Next.js data security
+guide ([Data fetching approaches](https://nextjs.org/docs/app/guides/data-security#data-fetching-approaches)),
+the one Next.js recommends for new projects: a server-only layer that performs
+the authorization checks and returns minimal DTOs. Next.js advises picking one
+approach and not mixing them, so auth lives in the DAL and nowhere else.
+
+All data access goes through the DAL: the query and mutation functions in
+`features/<feature>/data/`. **Every DAL function checks the session and the
+permission itself**, as its first step, before it touches the database.
+Pages, layouts, components and `proxy.ts` never check the session.
 
 ```ts
 // features/orders/data/queries.ts
@@ -178,7 +183,9 @@ Why here and not at the top of the page:
 
 Rules:
 - `requireSession()` and permission helpers are wrapped in `cache()`, so ten
-  queries on one page read the session once.
+  queries on one page read the session once. Without a session,
+  `requireSession()` redirects to the sign-in page; that redirect is how a
+  signed-out visitor leaves a private page.
 - DAL files start with `import "server-only"` so they can never end up in a
   client bundle.
 - Return only what the UI needs (a narrow object), not raw rows with
@@ -187,9 +194,17 @@ Rules:
   session and permission first, in the function itself.
 - Components that show the user (avatar, name) call `getCurrentUser()` inside
   their own Suspense boundary.
-- A coarse redirect for a whole area (not signed in → sign-in page) may live
-  in `proxy.ts`. That is a UX shortcut, not the security check; the DAL check
-  stays.
+- **No auth in `proxy.ts` (or `middleware.ts`)**, not even a "coarse"
+  redirect for a whole area. Proxy is for routing: locales, rewrites,
+  headers. A session check there is a second place for auth next to the DAL,
+  which is the mixing Next.js advises against. It only sees whether a cookie
+  exists, not whether the session is valid; it depends on a matcher that a
+  new route or an excluded path (`/api`) silently slips past; and Next.js
+  lists `proxy.ts` as a file that needs extra security auditing because of
+  how much power it has. The DAL check already covers every page that shows
+  private data.
+- A page that reads no user data needs no guard at all. Once it gets a query,
+  the query brings the check with it.
 
 ## 7. Static data: cache it into the shell
 
@@ -224,6 +239,7 @@ sections a page renders, uses `interface Props`.
 | `export default async function Page` with `await` at the top | Synchronous page; move the await into a section |
 | `const { id } = await params` in the page | Pass `params` to the section that needs `id` |
 | `await requireSession()` at the top of a page or layout | Session and permission check inside the DAL function |
+| Session cookie check or sign-in redirect in `proxy.ts` | Remove it; `requireSession()` in the DAL function redirects |
 | `loading.tsx` in a route | Suspense per section with its own skeleton |
 | One Suspense around the whole page or a whole card | Boundary around only the data part; chrome outside |
 | Async child component declared under its parent in the same file | Own file, with its own skeleton file |
@@ -239,6 +255,6 @@ sections a page renders, uses `interface Props`.
 - [ ] Every data component awaits its own data and its own params promise.
 - [ ] Every Suspense boundary wraps only the dynamic part and has a matching skeleton in its own file.
 - [ ] Search params are parsed with a schema.
-- [ ] Every DAL query and mutation checks the session and permission itself; no page, layout or component does.
+- [ ] Every DAL query and mutation checks the session and permission itself; no page, layout, component or `proxy.ts` does.
 - [ ] No `loading.tsx`; pages use `PageProps<"/route">`, everything else `interface Props`.
 - [ ] `next build` shows no blocking-route errors and the static shell contains the page chrome.
